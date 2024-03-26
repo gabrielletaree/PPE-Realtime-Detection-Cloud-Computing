@@ -28,3 +28,4 @@ docker compose up --build
 - https://github.com/ultralytics/yolov5
 - https://github.com/jzhang533/yolov5-flask
 - https://github.com/avinassh/pytorch-flask-api-heroku
+- https://github.com/zyrbreyes/yolov5fish
