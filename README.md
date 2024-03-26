@@ -20,12 +20,8 @@ Run locally and dev:
 * `(<VENV>) $ flask run`
 
 ## Docker
-The example dockerfile shows how to expose the rest API:
 ```
-# Build
-docker build -t yolov5 .
-# Run
-docker run -p 5000:5000 yolov5-flask:latest
+docker compose up --build
 ```
 
 ## reference
