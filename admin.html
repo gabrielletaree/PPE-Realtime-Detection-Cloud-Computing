@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin</title>
+  </head>
+  <body>
+    <h1>HELLO SELAMAT DATANG DI HALAMAN ADMIN</h1>
+    <button id="logout-button" value="ok">Logout</button>
+
+    <!-- <script type="module" src="firebaseconfig.js"></script> -->
+
+    <script type="module">
+      import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDJg__QXDYoI2_j1_50JxCy2wnKq3gnHi0",
+        authDomain: "utscc10lagi.firebaseapp.com",
+        databaseURL: "https://utscc10lagi-default-rtdb.firebaseio.com",
+        projectId: "utscc10lagi",
+        storageBucket: "utscc10lagi.appspot.com",
+        messagingSenderId: "545623939089",
+        appId: ":545623939089:web:c5c3f5905a8fb2b4ea79b0"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      let logoutButton = document.getElementById("logout-button");
+      console.log(logoutButton);
+
+      logoutButton.addEventListener("click", (e) => {
+        const auth = getAuth(app);
+        signOut(auth)
+          .then(() => {
+            alert("sukses logout");
+            location.href = "http://127.0.0.1:5500/auth_firebase_cdn/index.html";
+          })
+          .catch((error) => {});
+      });
+    </script>
+  </body>
+</html>
