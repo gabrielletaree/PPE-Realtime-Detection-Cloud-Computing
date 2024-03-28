@@ -5,7 +5,7 @@ and view the inference results on the image in the browser.
 import argparse
 import io
 import os
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import cv2
 import numpy as np
 import base64
@@ -44,7 +44,7 @@ model.iou = 0.45  # NMS IoU threshold (0-1)
 
 from io import BytesIO
 
-def gen():
+def gen(): # agak ada bedanya
     cap=cv2.VideoCapture(0)
     while(cap.isOpened()):
         success, frame = cap.read()
@@ -62,11 +62,12 @@ def gen():
         frame = cv2.imencode('.jpg', img_BGR)[1].tobytes()
         #print(frame)
         
-        yield(b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        yield(b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n') 
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
 @app.route('/video')
 def video():
     """Video streaming route. Put this in the src attribute of an img tag."""
@@ -90,19 +91,70 @@ from flask import request, jsonify
 
 @sio.on("image")
 def procImg(data):
-    sbuf = io.StringIO()
-    sbuf.write(data)
-    img = Image.open(io.BytesIO(base64.b64decode(data)))
+    # sbuf = io.StringIO()
+    # sbuf.write(data)
+    # img = Image.open(io.BytesIO(base64.b64decode(data)))
+    # results = model(img, size=640)
+
+    # img = np.squeeze(results.render()) #RGB
+    # # read image as BGR
+    # img_BGR = cv2.cvtColor(img, cv2.COLOR_RGB2BGR) #BGR
+    # imgnc = cv2.imencode(".jpg", img_BGR)[1]
+
+    # stData = base64.b64encode(imgnc).decode("utf-8")
+    # b64_src = "data:image/jpeg;base64," 
+    # emit("server_resp", b64_src+stData)
+
+    try:
+        img = Image.open(io.BytesIO(base64.b64decode(data)))
+    except UnidentifiedImageError:
+        emit("server_resp", "Error: Unable to identify image format")
+        return
+
     results = model(img, size=640)
 
-    img = np.squeeze(results.render()) #RGB
-    # read image as BGR
-    img_BGR = cv2.cvtColor(img, cv2.COLOR_RGB2BGR) #BGR
-    imgnc = cv2.imencode(".jpg", img_BGR)[1]
+    class_counts = {}
+    for detection in results.xyxy[0]:
+        class_name = model.names[int(detection[5])]
+        class_counts[class_name] = class_counts.get(class_name, 0) + 1
 
+    warning_level = "red"  # Default to "red" if no objects detected
+    if "helmet" in class_counts:
+        warning_level = "green"
+    elif "cap" in class_counts:
+        warning_level = "grey"
+
+    print("Detected objects:", class_counts)
+    print("Warning Level:", warning_level)
+
+    img = np.squeeze(results.render())  # RGB
+    img_BGR = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)  # BGR
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    text_color = (0, 0, 0)  # Hitam (default)
+    warning_message = "" 
+
+    if warning_level == "red":
+        warning_message = "Anda tidak memakai apapun!"
+        text_color = (0, 0, 255)  # Merah (BGR)
+    elif warning_level == "green":
+        text_color = (0, 255, 0)  # Hijau (BGR)
+        warning_message = "Selamat beraktivitas"
+    else:
+        text_color = (0, 165, 255)  
+        warning_message = "Anda sedang memakai topi"
+
+    text = f"Warning: {warning_message}"
+    text_size, _ = cv2.getTextSize(text, font, 1, 2)
+    label_x = 10
+    label_y = img_BGR.shape[0] - text_size[1] - 10
+    cv2.putText(img_BGR, text, (label_x, label_y), font, 1, text_color, 2, cv2.LINE_AA)
+
+    imgnc = cv2.imencode(".jpg", img_BGR)[1]
     stData = base64.b64encode(imgnc).decode("utf-8")
-    b64_src = "data:image/jpeg;base64," 
-    emit("server_resp", b64_src+stData)
+    b64_src = "data:image/jpeg;base64,"
+    emit("server_resp", b64_src + stData)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Flask app exposing yolov5 models")
