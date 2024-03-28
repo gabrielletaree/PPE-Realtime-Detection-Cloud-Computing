@@ -23,7 +23,7 @@ if os.name == 'nt':
 #-------------------------------------
 
 app = Flask(__name__)
-sio = SocketIO(app)
+sio = SocketIO(app, ping_timeout=5, ping_interval=5, engineio_logger=True)
 sio.init_app(app, cors_allowed_origins="*")
 
 #'''
@@ -66,9 +66,7 @@ def gen():
 
 @app.route('/')
 def index():
-    
     return render_template('index.html')
-
 @app.route('/video')
 def video():
     """Video streaming route. Put this in the src attribute of an img tag."""
@@ -80,6 +78,13 @@ def video():
 def video():
     return Response(generate_frames(),mimetype='multipart/x-mixed-replace; boundary=frame')
 '''
+@app.route('/signin', methods=['POST'])
+def signin():
+    return redirect('/yolov5')
+
+@app.route('/yolov5')
+def yolov5():
+    return render_template('index2.html')
 
 from flask import request, jsonify
 

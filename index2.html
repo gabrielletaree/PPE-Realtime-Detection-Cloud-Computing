@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>YOLOV5 Real Time Inference</title>
+    <style>
+      .corner {
+        border-radius: 25px;
+        border: 5px solid #212aad;
+        padding: 0px;
+        width:60%;
+        height:auto;
+        text-align: center;
+      }
+
+      .video-container {
+        justify-content: center;
+        text-align: center;
+        height:100%;
+        /*border: 1px solid black;*/
+      }
+
+    </style>
+  </head>
+  
+  <body >
+      <div class="container">
+        <canvas id="cOut"></canvas>
+        <video autoplay="true" id="vidElm"></video>
+        <div class="row" style="text-align: center; width:100%;">
+          <!-- <img src="../static/pytorch.png" style="width:40px; position:relative; left: -10px; display:inline-block;"> -->
+            <h1 style="text-align: center; display:inline-block;">PPE Realtime Detection</h1>
+          </img>
+        </div>
+      </div>
+  
+      <div class="video-container">
+          <img id = "image" class="corner" ></img>
+          <!--<img src="../static/pytorch.png" class="corner"></img>-->
+      </div>
+
+
+      <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+      <script>
+        //koneksikan ke socket
+        let socket = io(window.location.toString())
+        const img_cont = document.querySelector("#image")
+          
+        socket.on("connect", ()=>{
+          console.log("Koneksi sukses. ", socket.connected)
+        })
+        
+        const vid = document.querySelector("#vidElm")
+        vid.style.display = "none"
+        vid.style.visibility="hidden"
+        vid.width = 500
+        vid.height = 500
+        
+        if (navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({ video: true })
+          .then(function (stream) {
+              vid.srcObject = stream;
+              vid.play();
+          })
+          .catch(function (err0r) {
+              console.log(err0r)
+              console.log("Something went wrong!");
+          });
+        }
+
+        const FPS = 24;
+        const scale = 1;
+        let canvas = document.createElement("canvas")
+        
+        setInterval(()=>{
+          let type = "image/jpg"
+          let v_elm = document.querySelector("#vidElm")
+          
+          canvas = document.createElement("canvas")
+
+          canvas.width = v_elm.videoWidth * scale
+          canvas.height = v_elm.videoHeight * scale
+          
+          let ctx = canvas.getContext("2d")
+          ctx.drawImage(v_elm, 0, 0, canvas.width, canvas.height )
+          let frame = canvas
+
+          let dt = frame.toDataURL(type)
+          dt = dt.replace("data:image/png;base64,", "")
+          socket.emit("image", dt)
+        }, 10000/FPS)
+
+        socket.on("server_resp", (data)=>{
+          console.log("Menerima data", {data: data})
+          img_cont.src = data
+        })
+
+      </script>
+    </body>
+</html>

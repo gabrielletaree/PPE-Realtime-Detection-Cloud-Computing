@@ -1,105 +1,605 @@
+<!-- source https://www.youtube.com/watch?v=piG91X4sV2U&t=1110s -->
+<!-- https://www.youtube.com/watch?v=gcmGNOj37E8&list=PLnHVLqBXnoWXttdeU2M_53HAWGs3takKN&index=8 -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
-    <title>YOLOV5 Real Time Inference</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://kit.fontawesome.com/64d58efce2.js"
+      crossorigin="anonymous"
+    ></script>
     <style>
-      .corner {
-        border-radius: 25px;
-        border: 5px solid #212aad;
-        padding: 0px;
-        width:60%;
-        height:auto;
-        text-align: center;
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
 
-      .video-container {
+      body,
+      input {
+        font-family: "Poppins", sans-serif;
+      }
+
+      .container {
+        position: relative;
+        width: 100%;
+        background-color: #fff;
+        min-height: 100vh;
+        overflow: hidden;
+      }
+
+      .forms-container {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+      }
+
+      .signin-signup {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        left: 75%;
+        width: 50%;
+        transition: 1s 0.7s ease-in-out;
+        display: grid;
+        grid-template-columns: 1fr;
+        z-index: 5;
+      }
+
+      form {
+        display: flex;
+        align-items: center;
         justify-content: center;
+        flex-direction: column;
+        padding: 0rem 5rem;
+        transition: all 0.2s 0.7s;
+        overflow: hidden;
+        grid-column: 1 / 2;
+        grid-row: 1 / 2;
+      }
+
+      form.sign-up-form {
+        opacity: 0;
+        z-index: 1;
+      }
+
+      form.sign-in-form {
+        z-index: 2;
+      }
+
+      .title {
+        font-size: 2.2rem;
+        color: #444;
+        margin-bottom: 10px;
+      }
+
+      .input-field {
+        max-width: 380px;
+        width: 100%;
+        background-color: #f0f0f0;
+        margin: 10px 0;
+        height: 55px;
+        border-radius: 55px;
+        display: grid;
+        grid-template-columns: 15% 85%;
+        padding: 0 0.4rem;
+        position: relative;
+      }
+
+      .input-field i {
         text-align: center;
-        height:100%;
-        /*border: 1px solid black;*/
+        line-height: 55px;
+        color: #acacac;
+        transition: 0.5s;
+        font-size: 1.1rem;
+      }
+
+      .input-field input {
+        background: none;
+        outline: none;
+        border: none;
+        line-height: 1;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #333;
+      }
+
+      .input-field input::placeholder {
+        color: #aaa;
+        font-weight: 500;
+      }
+
+      .social-text {
+        padding: 0.7rem 0;
+        font-size: 1rem;
+      }
+
+      .social-media {
+        display: flex;
+        justify-content: center;
+      }
+
+      .social-icon {
+        height: 46px;
+        width: 46px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 0.45rem;
+        color: #333;
+        border-radius: 50%;
+        border: 1px solid #333;
+        text-decoration: none;
+        font-size: 1.1rem;
+        transition: 0.3s;
+      }
+
+      .social-icon:hover {
+        color: #4481eb;
+        border-color: #4481eb;
+      }
+
+      .btn {
+        width: 150px;
+        background-color: #5995fd;
+        border: none;
+        outline: none;
+        height: 49px;
+        border-radius: 49px;
+        color: #fff;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin: 10px 0;
+        cursor: pointer;
+        transition: 0.5s;
+      }
+
+      .btn:hover {
+        background-color: #4d84e2;
+      }
+      .panels-container {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        left: 0;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .container:before {
+        content: "";
+        position: absolute;
+        height: 2000px;
+        width: 2000px;
+        top: -10%;
+        right: 48%;
+        transform: translateY(-50%);
+        background-image: linear-gradient(-45deg, #4481eb 0%, #04befe 100%);
+        transition: 1.8s ease-in-out;
+        border-radius: 50%;
+        z-index: 6;
+      }
+
+      .image {
+        width: 100%;
+        transition: transform 1.1s ease-in-out;
+        transition-delay: 0.4s;
+      }
+
+      .panel {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: space-around;
+        text-align: center;
+        z-index: 6;
+      }
+
+      .left-panel {
+        pointer-events: all;
+        padding: 3rem 17% 2rem 12%;
+      }
+
+      .right-panel {
+        pointer-events: none;
+        padding: 3rem 12% 2rem 17%;
+      }
+
+      .panel .content {
+        color: #fff;
+        transition: transform 0.9s ease-in-out;
+        transition-delay: 0.6s;
+      }
+
+      .panel h3 {
+        font-weight: 600;
+        line-height: 1;
+        font-size: 1.5rem;
+      }
+
+      .panel p {
+        font-size: 0.95rem;
+        padding: 0.7rem 0;
+      }
+
+      .btn.transparent {
+        margin: 0;
+        background: none;
+        border: 2px solid #fff;
+        width: 130px;
+        height: 41px;
+        font-weight: 600;
+        font-size: 0.8rem;
+      }
+
+      .right-panel .image,
+      .right-panel .content {
+        transform: translateX(800px);
+      }
+
+      /* ANIMATION */
+
+      .container.sign-up-mode:before {
+        transform: translate(100%, -50%);
+        right: 52%;
+      }
+
+      .container.sign-up-mode .left-panel .image,
+      .container.sign-up-mode .left-panel .content {
+        transform: translateX(-800px);
+      }
+
+      .container.sign-up-mode .signin-signup {
+        left: 25%;
+      }
+
+      .container.sign-up-mode form.sign-up-form {
+        opacity: 1;
+        z-index: 2;
+      }
+
+      .container.sign-up-mode form.sign-in-form {
+        opacity: 0;
+        z-index: 1;
+      }
+
+      .container.sign-up-mode .right-panel .image,
+      .container.sign-up-mode .right-panel .content {
+        transform: translateX(0%);
+      }
+
+      .container.sign-up-mode .left-panel {
+        pointer-events: none;
+      }
+
+      .container.sign-up-mode .right-panel {
+        pointer-events: all;
+      }
+
+      @media (max-width: 870px) {
+        .container {
+          min-height: 800px;
+          height: 100vh;
+        }
+        .signin-signup {
+          width: 100%;
+          top: 95%;
+          transform: translate(-50%, -100%);
+          transition: 1s 0.8s ease-in-out;
+        }
+
+        .signin-signup,
+        .container.sign-up-mode .signin-signup {
+          left: 50%;
+        }
+
+        .panels-container {
+          grid-template-columns: 1fr;
+          grid-template-rows: 1fr 2fr 1fr;
+        }
+
+        .panel {
+          flex-direction: row;
+          justify-content: space-around;
+          align-items: center;
+          padding: 2.5rem 8%;
+          grid-column: 1 / 2;
+        }
+
+        .right-panel {
+          grid-row: 3 / 4;
+        }
+
+        .left-panel {
+          grid-row: 1 / 2;
+        }
+
+        .image {
+          width: 200px;
+          transition: transform 0.9s ease-in-out;
+          transition-delay: 0.6s;
+        }
+
+        .panel .content {
+          padding-right: 15%;
+          transition: transform 0.9s ease-in-out;
+          transition-delay: 0.8s;
+        }
+
+        .panel h3 {
+          font-size: 1.2rem;
+        }
+
+        .panel p {
+          font-size: 0.7rem;
+          padding: 0.5rem 0;
+        }
+
+        .btn.transparent {
+          width: 110px;
+          height: 35px;
+          font-size: 0.7rem;
+        }
+
+        .container:before {
+          width: 1500px;
+          height: 1500px;
+          transform: translateX(-50%);
+          left: 30%;
+          bottom: 68%;
+          right: initial;
+          top: initial;
+          transition: 2s ease-in-out;
+        }
+
+        .container.sign-up-mode:before {
+          transform: translate(-50%, 100%);
+          bottom: 32%;
+          right: initial;
+        }
+
+        .container.sign-up-mode .left-panel .image,
+        .container.sign-up-mode .left-panel .content {
+          transform: translateY(-300px);
+        }
+
+        .container.sign-up-mode .right-panel .image,
+        .container.sign-up-mode .right-panel .content {
+          transform: translateY(0px);
+        }
+
+        .right-panel .image,
+        .right-panel .content {
+          transform: translateY(300px);
+        }
+
+        .container.sign-up-mode .signin-signup {
+          top: 5%;
+          transform: translate(-50%, 0);
+        }
+      }
+
+      @media (max-width: 570px) {
+        form {
+          padding: 0 1.5rem;
+        }
+
+        .image {
+          display: none;
+        }
+        .panel .content {
+          padding: 0.5rem 1rem;
+        }
+        .container {
+          padding: 1.5rem;
+        }
+
+        .container:before {
+          bottom: 72%;
+          left: 50%;
+        }
+
+        .container.sign-up-mode:before {
+          bottom: 28%;
+          left: 50%;
+        }
       }
 
     </style>
+    <title>Sign in & Sign up Form</title>
   </head>
-  
-  <body >
-      <div class="container">
-        <canvas id="cOut"></canvas>
-        <video autoplay="true" id="vidElm"></video>
-        <div class="row" style="text-align: center; width:100%;">
-          <!-- <img src="../static/pytorch.png" style="width:40px; position:relative; left: -10px; display:inline-block;"> -->
-            <h1 style="text-align: center; display:inline-block;">PPE Realtime Detection</h1>
-          </img>
+  <body>
+    <div class="container">
+      <div class="forms-container">
+        <div class="signin-signup">
+          <form action="#" class="sign-in-form">
+            <h2 class="title">Sign in</h2>
+            <div class="input-field">
+              <i class="fas fa-user"></i>
+              <input type="email" placeholder="Email" id="email_signin" />
+            </div>
+            <div class="input-field">
+              <i class="fas fa-lock"></i>
+              <input
+                type="password"
+                placeholder="Password"
+                id="psw_signin"
+                autocomplete="new-password"
+              />
+            </div>
+            <input
+              type="submit"
+              value="Login"
+              id="signin-button"
+              class="btn solid"
+            />
+          </form>
+          <form action="#" class="sign-up-form">
+            <h2 class="title">Sign up</h2>
+            <div class="input-field">
+              <i class="fas fa-user"></i>
+              <input type="text" placeholder="Name" id="name" />
+            </div>
+            <div class="input-field">
+              <i class="fas fa-phone"></i>
+              <input type="text" placeholder="No HP" id="nohp" />
+            </div>
+            <div class="input-field">
+              <i class="fas fa-envelope"></i>
+              <input type="email" placeholder="Email" id="email_signup" />
+            </div>
+            <div class="input-field">
+              <i class="fas fa-lock"></i>
+              <input
+                type="password"
+                placeholder="Password"
+                id="psw_signup"
+                autocomplete="new-password"
+              />
+            </div>
+            <input type="submit" class="btn" id="signup-button" value="Sign up" />
+          </form>
         </div>
       </div>
-  
-      <div class="video-container">
-          <img id = "image" class="corner" ></img>
-          <!--<img src="../static/pytorch.png" class="corner"></img>-->
+      <div class="panels-container">
+        <div class="panel left-panel">
+          <div class="content">
+            <h3>New here ?</h3>
+            <p>
+              Deteksi Penggunaan PPE (Safety Helmet and Cap) Secara Real Time
+              Guna Meningkatkan Keselamatan Kerja dengan Algoritma YOLOv5!
+            </p>
+            <button class="btn transparent" id="sign-up-btn">Sign up</button>
+          </div>
+          <img src="templates/img/log.svg" class="image" alt="" />
+        </div>
+        <div class="panel right-panel">
+          <div class="content">
+            <h3>One of us ?</h3>
+            <p>
+              Deteksi Penggunaan PPE (Safety Helmet and Cap) Secara Real Time
+              Guna Meningkatkan Keselamatan Kerja dengan Algoritma YOLOv5
+            </p>
+            <button class="btn transparent" id="sign-in-btn">Sign in</button>
+          </div>
+          <img src="templates/img/register.svg" class="image" alt="" />
+        </div>
       </div>
+    </div>
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        // import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+        import { getDatabase, set, ref, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+        // import { getDatabase } from "firebase/database";
+
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyDJg__QXDYoI2_j1_50JxCy2wnKq3gnHi0",
+          authDomain: "utscc10lagi.firebaseapp.com",
+          databaseURL: "https://utscc10lagi-default-rtdb.firebaseio.com",
+          projectId: "utscc10lagi",
+          storageBucket: "utscc10lagi.appspot.com",
+          messagingSenderId: "545623939089",
+          appId: "1:545623939089:web:c5c3f5905a8fb2b4ea79b0"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        let signinButton = document.getElementById("signin-button");
+        let signupButton = document.getElementById("signup-button");
+
+        signupButton.addEventListener("click", (e) => {
+          e.preventDefault(); // Prevent the default form submission behavior
+
+          let name = document.getElementById("name").value;
+          let nohp = document.getElementById("nohp").value;
+          let emailSignup = document.getElementById("email_signup").value;
+          let passwordSignup = document.getElementById("psw_signup").value;
+
+          createUserWithEmailAndPassword(auth, emailSignup, passwordSignup)
+            .then((userCredential) => {
+              // Signed in
+              const user = userCredential.user;
+
+              set(ref(database, "users/" + user.uid), {
+                name: name,
+                nohp: nohp,
+                email: emailSignup,
+                password: passwordSignup
+              })
+              .then(() => {
+                // Data saved successfully!
+                alert("User berhasil dibuat");
+              })
+              .catch((error) => {
+                // Handle database write error
+                console.error("Error writing user data:", error);
+                alert("Gagal menyimpan data pengguna.");
+              });
+            })
+            .catch((error) => {
+              // Handle sign-up error
+              console.error("Error signing up:", error);
+              alert("Gagal mendaftar: " + error.message);
+            });
+        });
 
 
-      <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
-      <script>
-        //koneksikan ke socket
-        let socket = io(window.location.toString())
-        const img_cont = document.querySelector("#image")
-          
-        socket.on("connect", ()=>{
-          console.log("Koneksi sukses. ", socket.connected)
-        })
-        
-        const vid = document.querySelector("#vidElm")
-        vid.style.display = "none"
-        vid.style.visibility="hidden"
-        vid.width = 500
-        vid.height = 500
-        
-        if (navigator.mediaDevices.getUserMedia) {
-          navigator.mediaDevices.getUserMedia({ video: true })
-          .then(function (stream) {
-              vid.srcObject = stream;
-              vid.play();
-          })
-          .catch(function (err0r) {
-              console.log(err0r)
-              console.log("Something went wrong!");
-          });
-        }
+        signinButton.addEventListener("click", (e) => {
+          e.preventDefault(); 
+          let emailSignin = document.getElementById("email_signin").value;
+          let passwordSignin = document.getElementById("psw_signin").value;
+          signInWithEmailAndPassword(auth, emailSignin, passwordSignin)
+            .then((userCredential) => {
+              // Signed in
+              const user = userCredential.user;
+              let lgDate = new Date();
+              console.log('Sign-in successful');
+              // Redirect to index.html
+              
+              update(ref(database, "users/" + user.uid), {
+                last_login: lgDate
+              });
+              window.history.pushState({}, '', 'yolov5');
+              window.location.reload(); 
+            })
+            .catch((error) => {
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              alert(errorMessage);
+            });
+          signOut(auth)
+            .then(() => {})
+            .catch((error) => {});
+        });
 
-        const FPS = 1;
-        const scale = 1;
-        let canvas = document.createElement("canvas")
-        
-        setInterval(()=>{
-          let type = "image/jpg"
-          let v_elm = document.querySelector("#vidElm")
-          
-          canvas = document.createElement("canvas")
+    </script>
+    <script>
+      const sign_in_btn = document.querySelector("#sign-in-btn");
+      const sign_up_btn = document.querySelector("#sign-up-btn");
+      const container = document.querySelector(".container");
 
-          canvas.width = v_elm.videoWidth * scale
-          canvas.height = v_elm.videoHeight * scale
-          
-          let ctx = canvas.getContext("2d")
-          ctx.drawImage(v_elm, 0, 0, canvas.width, canvas.height )
-          let frame = canvas
+      sign_up_btn.addEventListener("click", () => {
+        container.classList.add("sign-up-mode");
+      });
 
-          let dt = frame.toDataURL(type)
-          dt = dt.replace("data:image/png;base64,", "")
-          socket.emit("image", dt)
-        }, 10000/FPS)
+      sign_in_btn.addEventListener("click", () => {
+        container.classList.remove("sign-up-mode");
+      });
 
-        socket.on("server_resp", (data)=>{
-          console.log("Menerima data", {data: data})
-          img_cont.src = data
-        })
-
-      </script>
-      <script type="module">
-        // Isi Di Sini Saja
-      </script>
-    </body>
+    </script>
+  </body>
 </html>
